@@ -1,6 +1,5 @@
 # -*- coding:UTF-8 -*-
 
-import gevent
 import gevent.monkey
 gevent.monkey.patch_all()
 import warnings
@@ -14,7 +13,8 @@ import time
 import requests
 import queue
 import re
-import ProgressBar
+from Tools import ProgressBar
+
 
 class Excel(object):
 
@@ -113,11 +113,13 @@ class SubDomain(object):
 
 if __name__ == "__main__":
 
+    # region 解释命令行
     parse = optparse.OptionParser(usage='usage:%prog [options] --domain 域名 --gevent 协程数', version='%prog 1.0')
     parse.prog = '子域名收集'
     parse.add_option('--domain', dest='domain', action='store', type=str, metavar='domain', help='域名')
     parse.add_option('--gevent', dest='gevent', action='store', type=int, metavar='gnum', help='域名')
     options, args = parse.parse_args()
+    # endregion
 
     # if not options.domain:
     #     parse.error('必须输入要收集的域名')
@@ -145,9 +147,11 @@ if __name__ == "__main__":
     progress_bar = ProgressBar.Bar(task_queue.qsize())
     # endregion
 
+    # gevent
     start = time.time()
     jobs = []
     for i in range(options.gnum ):
         jobs.append(gevent.spawn(SubDomain().run))
     gevent.joinall(jobs)
     print(time.time() - start)
+    # endregion
